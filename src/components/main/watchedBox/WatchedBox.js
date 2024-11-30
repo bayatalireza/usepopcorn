@@ -1,10 +1,8 @@
 import { useState } from "react";
-import WatchSummary from "./watch/WatchSummary";
-import WatchedMoviesList from "./watch/WatchedMoviesList";
+import WatchSummary from "./watchSummery/WatchSummary";
+import WatchedMoviesList from "./watchedMovies/WatchedMoviesList";
 
-
-
-export default function WatchBox({ tempWatchedData }) {
+export default function WatchedBox({ tempWatchedData }) {
   const [isOpen2, setIsOpen2] = useState(true);
   const [watched, setWatched] = useState(tempWatchedData);
 
