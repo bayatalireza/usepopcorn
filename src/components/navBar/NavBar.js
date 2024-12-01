@@ -1,15 +1,12 @@
-import React from "react";
-import Search from "./search/Search"; // Assuming Search component is defined in a separate file
-import Logo from "./logo/Logo"; // Assuming Logo component is defined in a separate file
-import NumResults from "./numResult/NumResults";
 
-export default function NavBar({movies}) {
+import Logo from "./logo/Logo";
+
+export default function NavBar({ children }) {
   return (
     <>
       <nav className="nav-bar">
         <Logo />
-        <Search />
-        <NumResults movies={movies} />
+        {children}
       </nav>
     </>
   );
