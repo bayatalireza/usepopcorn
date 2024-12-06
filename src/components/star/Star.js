@@ -1,11 +1,10 @@
 
-export default function Star({ onRating, full, onHoverIn, onHoverOut, color, size}) {
+export default function Star({ onRating, full, onHoverIn, onHoverOut, color, size, starNum}) {
   const starStyle = {
     width: size,
     height: size,
     display: "block",
     cursor: "pointer",
-
   };
   return (
     <span role="button" style={starStyle} onClick={onRating}
