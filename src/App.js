@@ -8,6 +8,7 @@ import WatchSummary from "./components/main/box/watchSummery/WatchSummary";
 import MovieList from "./components/main/box/movieList/MovieList";
 import WatchedMoviesList from "./components/main/box/watchedMovies/WatchedMoviesList";
 
+
 const tempMovieData = [
   {
     imdbID: "tt1375666",
