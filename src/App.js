@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import NavBar from "./components/navBar/NavBar";
 import Main from "./components/main/Main";
 import Search from "./components/navBar/search/Search";
@@ -56,10 +56,19 @@ const tempWatchedData = [
   },
 ];
 
+const KEY = "4af40d5c"
+
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
 
   const [watched, setWatched] = useState(tempWatchedData);
+
+  useEffect(function(){
+    fetch(`http://www.omdbapi.com/?apikey=${KEY}`)
+      .then((res)=>res.json())
+      .then((data)=>setMovies(data.Search));
+    return ()=>console.log('Cleanup');
+  }, [])
 
   return (
     <div>

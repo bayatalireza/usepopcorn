@@ -5,7 +5,7 @@ export default function WatchedMoviesList({watched}) {
     <>
       <ul className="list">
         {watched.map((movie) => (
-          <li>
+          <li key={movie.Title}>
             <img src={movie.Poster} alt={`${movie.Title} poster`} />
 
             <div className="">
