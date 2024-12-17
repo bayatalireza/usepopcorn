@@ -67,7 +67,6 @@ export default function App() {
     fetch(`http://www.omdbapi.com/?apikey=${KEY}`)
       .then((res)=>res.json())
       .then((data)=>setMovies(data.Search));
-    return ()=>console.log('Cleanup');
   }, [])
 
   return (
