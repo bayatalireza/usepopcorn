@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "./components/navBar/NavBar";
 import Main from "./components/main/Main";
 import Search from "./components/navBar/search/Search";
@@ -7,7 +7,8 @@ import Box from "./components/main/box/Box";
 import WatchSummary from "./components/main/box/watchSummery/WatchSummary";
 import MovieList from "./components/main/box/movieList/MovieList";
 import WatchedMoviesList from "./components/main/box/watchedMovies/WatchedMoviesList";
-
+import { use } from "react";
+import Loader from "./components/loader/Loader";
 
 const tempMovieData = [
   {
@@ -56,18 +57,28 @@ const tempWatchedData = [
   },
 ];
 
-const KEY = "4af40d5c"
+const KEY = "4af40d5c";
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
-
   const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const query = "interstellar"
 
-  useEffect(function(){
-    fetch(`http://www.omdbapi.com/?apikey=${KEY}`)
-      .then((res)=>res.json())
-      .then((data)=>setMovies(data.Search));
-  }, [])
+
+
+
+  useEffect(function () {
+    async function fetchMovies() {
+      setIsLoading(true);
+      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
+      const data = await res.json()
+      setMovies(data.Search);
+      setIsLoading(false);
+    }
+    fetchMovies();
+  }, []);
 
   return (
     <div>
@@ -77,7 +88,10 @@ export default function App() {
       </NavBar>
       <Main>
         <Box>
+          {isLoading ? <Loader /> :
+
           <MovieList movies={movies} />
+          }
         </Box>
         <Box>
           <WatchSummary watched={watched} />
