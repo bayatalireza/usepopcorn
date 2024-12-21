@@ -7,8 +7,8 @@ import Box from "./components/main/box/Box";
 import WatchSummary from "./components/main/box/watchSummery/WatchSummary";
 import MovieList from "./components/main/box/movieList/MovieList";
 import WatchedMoviesList from "./components/main/box/watchedMovies/WatchedMoviesList";
-import { use } from "react";
 import Loader from "./components/loader/Loader";
+import ErrorMessage from "./components/error/ErrorMessage";
 
 const tempMovieData = [
   {
@@ -62,47 +62,56 @@ const KEY = "4af40d5c";
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
-  const [isLoading, setIsLoading] = useState(false)
-  const [error,  setError] = useState('')
-  
-  const query = "interstellar"
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
 
+  const tempQuery = "interstellar";
 
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          );
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+          const data = await res.json();
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        
-        setIsLoading(true);
-        const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
-        if(!res.ok){
-          throw new Error(`HTTP error! status: ${res.status}`)
+          if (data.Response === "False") throw new Error("No movies found");
+
+          setMovies(data.Search);
+          console.log(data);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
         }
-        const data = await res.json()
-        setMovies(data.Search);
-        setIsLoading(false);
-      } catch (error) {
-        console.log(error.message);
-        
-        setError(error.message)
+
+        if (query.length < 3) setMovies([]);
+        setError("");
+        return;
       }
-    }
-    fetchMovies();
-  }, []);
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <div>
       <NavBar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
-          {isLoading ? <Loader /> :
+          {isLoading && <Loader />}
 
-          <MovieList movies={movies} />
-          }
+          {!isLoading && !error && <MovieList movies={movies} />}
+          {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
           <WatchSummary watched={watched} />
