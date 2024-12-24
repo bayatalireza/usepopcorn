@@ -9,6 +9,7 @@ import MovieList from "./components/main/box/movieList/MovieList";
 import WatchedMoviesList from "./components/main/box/watchedMovies/WatchedMoviesList";
 import Loader from "./components/loader/Loader";
 import ErrorMessage from "./components/error/ErrorMessage";
+import MoveDetails from "./components/movieDetails/MoveDetails";
 
 const tempMovieData = [
   {
@@ -65,8 +66,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
-
-  const tempQuery = "interstellar";
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(
     function () {
@@ -84,14 +84,14 @@ export default function App() {
           if (data.Response === "False") throw new Error("No movies found");
 
           setMovies(data.Search);
-          console.log(data);
+
         } catch (err) {
           setError(err.message);
         } finally {
           setIsLoading(false);
         }
 
-        if (query.length < 3) setMovies([]);
+        if (query.length < 4) setMovies([]);
         setError("");
         return;
       }
@@ -99,6 +99,14 @@ export default function App() {
     },
     [query]
   );
+
+  function handleSelectMovie(id){
+    setSelectedId(selectedId => selectedId === id ? null : id);
+  }
+
+  function handleCloseMovie(){
+    setSelectedId(null)
+  }
 
   return (
     <div>
@@ -110,12 +118,18 @@ export default function App() {
         <Box>
           {isLoading && <Loader />}
 
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}
           {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <WatchSummary watched={watched} />
-          <WatchedMoviesList watched={watched} />
+          {selectedId ? (
+            <MoveDetails selectedId={selectedId} onCloseMovie={handleCloseMovie}/>
+          ) : (
+            <>
+              <WatchSummary watched={watched} />
+              <WatchedMoviesList watched={watched} />
+            </>
+          )}
         </Box>
         {/* <Box props={<MovieList movies={movies} />} />
         <Box
