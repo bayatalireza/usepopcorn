@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "./components/navBar/NavBar";
 import Main from "./components/main/Main";
 import Search from "./components/navBar/search/Search";
@@ -7,7 +7,9 @@ import Box from "./components/main/box/Box";
 import WatchSummary from "./components/main/box/watchSummery/WatchSummary";
 import MovieList from "./components/main/box/movieList/MovieList";
 import WatchedMoviesList from "./components/main/box/watchedMovies/WatchedMoviesList";
-
+import Loader from "./components/loader/Loader";
+import ErrorMessage from "./components/error/ErrorMessage";
+import MoveDetails from "./components/movieDetails/MoveDetails";
 
 const tempMovieData = [
   {
@@ -56,24 +58,78 @@ const tempWatchedData = [
   },
 ];
 
+const KEY = "4af40d5c";
+
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
-
   const [watched, setWatched] = useState(tempWatchedData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
+
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          );
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+          const data = await res.json();
+
+          if (data.Response === "False") throw new Error("No movies found");
+
+          setMovies(data.Search);
+
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+
+        if (query.length < 4) setMovies([]);
+        setError("");
+        return;
+      }
+      fetchMovies();
+    },
+    [query]
+  );
+
+  function handleSelectMovie(id){
+    setSelectedId(selectedId => selectedId === id ? null : id);
+  }
+
+  function handleCloseMovie(){
+    setSelectedId(null)
+  }
 
   return (
     <div>
       <NavBar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
-          <MovieList movies={movies} />
+          {isLoading && <Loader />}
+
+          {!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}
+          {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <WatchSummary watched={watched} />
-          <WatchedMoviesList watched={watched} />
+          {selectedId ? (
+            <MoveDetails selectedId={selectedId} onCloseMovie={handleCloseMovie}/>
+          ) : (
+            <>
+              <WatchSummary watched={watched} />
+              <WatchedMoviesList watched={watched} />
+            </>
+          )}
         </Box>
         {/* <Box props={<MovieList movies={movies} />} />
         <Box
