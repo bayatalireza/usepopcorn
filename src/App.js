@@ -87,6 +87,8 @@ export default function App() {
 
         } catch (err) {
           setError(err.message);
+          console.log(err.message);
+          
         } finally {
           setIsLoading(false);
         }
@@ -123,7 +125,7 @@ export default function App() {
         </Box>
         <Box>
           {selectedId ? (
-            <MoveDetails selectedId={selectedId} onCloseMovie={handleCloseMovie}/>
+            <MoveDetails selectedId={selectedId} onCloseMovie={handleCloseMovie} KEY={KEY}/>
           ) : (
             <>
               <WatchSummary watched={watched} />
