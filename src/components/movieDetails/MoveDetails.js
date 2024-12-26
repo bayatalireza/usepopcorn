@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from "react";
 import StarRating from "../../starRating/StarRating";
 
-export default function MoveDetails({ selectedId, onCloseMovie, KEY }) {
+export default function MoveDetails({
+  selectedId,
+  onCloseMovie,
+  KEY,
+  onAddWatched,
+  watched
+}) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userRating, setUserRating] = useState("");
+  const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
+  const watchedUserRating = watched.find(movie => movie.imdbID === selectedId)?.userRating;
+
 
   const {
     Title: title,
-    // Year: year,
+    Year: year,
     Poster: poster,
     Runtime: runtime,
     imdbRating,
@@ -17,6 +27,7 @@ export default function MoveDetails({ selectedId, onCloseMovie, KEY }) {
     Actors: actors,
     Director: director,
     Genre: genre,
+    imdbID: imdbID,
   } = movie;
 
   useEffect(() => {
@@ -31,7 +42,9 @@ export default function MoveDetails({ selectedId, onCloseMovie, KEY }) {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
+
         setMovie(data);
+
       } catch (error) {
         setError(error.message);
       } finally {
@@ -40,9 +53,27 @@ export default function MoveDetails({ selectedId, onCloseMovie, KEY }) {
     }
     getMovieDetails();
   }, [selectedId]);
+
+  function handleAdd() {
+    const newWatchedMovie = {
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime.split(" ").at(0)),
+      userRating,
+      imdbID: imdbID,
+    };
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
+
+
+
   return (
     <div className="details">
-      {error && (
+      {error && <div className="error">{error}</div>}
+      {!error && (
         <>
           <header>
             <button className="btn-back" onClick={onCloseMovie}>
@@ -63,7 +94,25 @@ export default function MoveDetails({ selectedId, onCloseMovie, KEY }) {
           </header>
           <section>
             <div className="rating">
-              <StarRating starNum={10} Size={24} />
+              {!isWatched ? (
+                <>
+                  <StarRating
+                    starNum={10}
+                    Size={18}
+                    onUserRating={setUserRating}
+                  />
+
+                  {userRating && (
+                    <button className="btn-add" onClick={handleAdd}>
+                      + Add to list
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="watched">
+                  You have already watched this movie and add    {watchedUserRating} Rating
+                </div>
+              )}
             </div>
             <h3>Plot</h3>
             <p>{plot}</p>

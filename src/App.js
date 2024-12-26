@@ -61,12 +61,13 @@ const tempWatchedData = [
 const KEY = "4af40d5c";
 
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
 
   useEffect(
     function () {
@@ -84,11 +85,8 @@ export default function App() {
           if (data.Response === "False") throw new Error("No movies found");
 
           setMovies(data.Search);
-
         } catch (err) {
           setError(err.message);
-          console.log(err.message);
-          
         } finally {
           setIsLoading(false);
         }
@@ -102,12 +100,21 @@ export default function App() {
     [query]
   );
 
-  function handleSelectMovie(id){
-    setSelectedId(selectedId => selectedId === id ? null : id);
+  function handleSelectMovie(id) {
+    setSelectedId((selectedId) => (selectedId === id ? null : id));
   }
 
-  function handleCloseMovie(){
-    setSelectedId(null)
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
+
+  function handleAddWatched(movie) {
+    setWatched((watched) => [...watched, movie]);
+  }
+
+  function handleDeleteWatched(id){
+    setWatched(watched => watched.filter(movie => movie.imdbID!== id))
+
   }
 
   return (
@@ -120,16 +127,24 @@ export default function App() {
         <Box>
           {isLoading && <Loader />}
 
-          {!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
           {selectedId ? (
-            <MoveDetails selectedId={selectedId} onCloseMovie={handleCloseMovie} KEY={KEY}/>
+            <MoveDetails
+              selectedId={selectedId}
+              onCloseMovie={handleCloseMovie}
+              KEY={KEY}
+              onAddWatched={handleAddWatched}
+              watched={watched}
+            />
           ) : (
             <>
               <WatchSummary watched={watched} />
-              <WatchedMoviesList watched={watched} />
+              <WatchedMoviesList watched={watched} onDeleteWatched={handleDeleteWatched}/>
             </>
           )}
         </Box>

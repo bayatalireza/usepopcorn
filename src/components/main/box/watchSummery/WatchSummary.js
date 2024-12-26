@@ -21,11 +21,11 @@ export default function WatchSummary({watched}) {
           </p>
           <p>
             <span>⭐️</span>
-            <span>{avgImdbRating}</span>
+            <span>{avgImdbRating.toFixed(2)}</span>
           </p>
           <p>
             <span>🌟</span>
-            <span>{avgUserRating}</span>
+            <span>{avgUserRating.toFixed(2)}</span>
           </p>
           <p>
             <span>⏳</span>
