@@ -71,22 +71,29 @@ export default function App() {
 
   useEffect(
     function () {
+
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,{signal: controller.signal}
           );
           if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
           const data = await res.json();
-
+          
           if (data.Response === "False") throw new Error("No movies found");
 
           setMovies(data.Search);
+          setError("");
         } catch (err) {
-          setError(err.message);
+          if(err.name !== "AbortError"){
+
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -95,7 +102,11 @@ export default function App() {
         setError("");
         return;
       }
+
+      handleCloseMovie()
       fetchMovies();
+
+      return () => controller.abort();
     },
     [query]
   );
@@ -104,18 +115,34 @@ export default function App() {
     setSelectedId((selectedId) => (selectedId === id ? null : id));
   }
 
-  function handleCloseMovie() {
-    setSelectedId(null);
-  }
-
+  
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
   }
-
+  
   function handleDeleteWatched(id){
     setWatched(watched => watched.filter(movie => movie.imdbID!== id))
-
+    
   }
+  
+  function handleCloseMovie(){
+    setSelectedId(null);
+  }
+
+
+  useEffect(()=>{
+    function Callback(e){
+      if(e.key === "Escape"){
+        handleCloseMovie(); 
+      }
+    }
+    document.addEventListener("keydown",  Callback);
+
+    return function (){
+      document.removeEventListener("keydown", Callback);
+    }
+
+  },[])
 
   return (
     <div>

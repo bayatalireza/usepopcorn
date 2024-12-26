@@ -35,6 +35,7 @@ export default function MoveDetails({
       try {
         setIsLoading(true);
 
+        
         // Fetch movie details from API here
         const res = await fetch(
           `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
@@ -68,7 +69,15 @@ export default function MoveDetails({
     onCloseMovie();
   }
 
+  useEffect(()=>{
+    if(!title) return;
+    document.title = title;
 
+    return function(){
+      document.title = "Use Popcorn";
+      
+    }
+  }, [title])
 
   return (
     <div className="details">
