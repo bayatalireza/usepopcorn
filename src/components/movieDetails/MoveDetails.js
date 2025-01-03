@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import StarRating from "../../starRating/StarRating";
 
 export default function MoveDetails({
@@ -16,6 +16,7 @@ export default function MoveDetails({
   const watchedUserRating = watched.find(movie => movie.imdbID === selectedId)?.userRating;
 
 
+
   const {
     Title: title,
     Year: year,
@@ -29,6 +30,15 @@ export default function MoveDetails({
     Genre: genre,
     imdbID: imdbID,
   } = movie;
+
+  const countRef = useRef(0);
+
+  useEffect(()=>{
+    if(userRating){
+      countRef.current = countRef.current + 1;
+      
+    }
+  }, [userRating])
 
   useEffect(() => {
     async function getMovieDetails() {
@@ -64,7 +74,10 @@ export default function MoveDetails({
       runtime: Number(runtime.split(" ").at(0)),
       userRating,
       imdbID: imdbID,
+      countRatingDecisions: countRef.current,
     };
+    // console.log(newWatchedMovie);
+    
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
